@@ -1,0 +1,113 @@
+RELATORIO DE ERROS - API DE TAREFAS
+===================================
+
+Projeto: APIdeTarefas
+Repositorio: https://github.com/Giorgio1811/APIdeTarefas
+Data do registro: 27/10/2026
+
+1. ERRO 404 NA URL RAIZ
+------------------------
+Sintoma:
+Ao acessar http://127.0.0.1:8000/, o Django exibia "Page not found (404)".
+
+Causa:
+O arquivo todoapi/urls.py possuia apenas as rotas /admin/, /api/login/ e /api/.
+Nao havia uma rota para o caminho vazio (/).
+
+Correcao:
+Foi criada a funcao home em todoapi/views.py, retornando um JSON de status:
+{
+    "projeto": "API de Tarefas",
+    "status": "online",
+    "mensagem": "API funcionando. Consulte /api/login/ e /api/tarefas/."
+}
+A rota vazia foi adicionada em todoapi/urls.py.
+
+Validacao:
+GET / retornou HTTP 200.
+GET /api/tarefas/ sem token continuou retornando HTTP 401.
+
+2. ERRO NO TESTE DA ROTA RAIZ
+-----------------------------
+Sintoma:
+O teste test_home_funciona falhou com:
+AttributeError: 'JsonResponse' object has no attribute 'data'
+
+Causa:
+response.data e uma propriedade usada nas respostas do Django REST Framework.
+A rota raiz usa JsonResponse do Django, que fornece o metodo response.json().
+
+Correcao:
+O teste foi alterado para verificar:
+response.json()['status']
+
+Validacao:
+O conjunto de testes passou com 9 testes aprovados.
+
+3. AVISOS DE IMPORTACAO NO PYLANCE
+----------------------------------
+Sintoma:
+O VS Code exibiu avisos como:
+reportMissingModuleSource
+reportMissingImports
+
+Causa:
+O Pylance estava usando um interpretador Python diferente do ambiente virtual
+do projeto, portanto nao encontrava Django e Django REST Framework no ambiente
+selecionado.
+
+Correcao:
+O interpretador do workspace foi alterado para:
+C:\todoapi\venv\Scripts\python.exe
+
+Validacao:
+As dependencias foram encontradas pelo ambiente virtual e o comando
+manage.py check retornou:
+System check identified no issues (0 silenced).
+
+4. IDENTIDADE DO GIT AUSENTE
+----------------------------
+Sintoma:
+O primeiro commit falhou com:
+Author identity unknown
+fatal: unable to auto-detect email address
+
+Causa:
+Nome e e-mail do autor nao estavam configurados no repositorio.
+
+Correcao:
+Foi configurada a identidade local:
+Nome: Giorgio Bezerra
+E-mail: giorgio.bezerra@iesb.edu.br
+
+Validacao:
+O commit bf87e937 foi criado e enviado para a branch main.
+
+5. PROTECAO DE ARQUIVOS SENSIVEIS
+---------------------------------
+Acao preventiva:
+O arquivo .gitignore foi configurado para impedir o envio de:
+- venv/
+- __pycache__/
+- arquivos *.pyc
+- db.sqlite3
+- .env
+- .vscode/
+- API - Projeto3.pdf
+- docs.txt
+
+Observacao:
+O arquivo erro.txt foi solicitado para ser versionado e, por isso, esta sendo
+incluido neste commit. Ele nao contem tokens, senhas ou chaves privadas.
+
+6. VALIDACAO FINAL
+------------------
+Comandos executados:
+venv\Scripts\python.exe manage.py check
+venv\Scripts\python.exe manage.py test
+
+Resultados:
+- Check do Django: aprovado.
+- Testes automatizados: 9 testes aprovados.
+- Rota raiz: HTTP 200.
+- API sem token: HTTP 401, conforme esperado.
